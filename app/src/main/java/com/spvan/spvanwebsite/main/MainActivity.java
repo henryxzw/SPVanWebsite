@@ -8,9 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         webView = binding.webView;
         ShareSDK.initSDK(this);
         InitView();
+
     }
 
     public void InitView()
@@ -88,34 +91,33 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-               titleDetail  = title;
-//                if(view.getUrl().contains("ProductDetails"))
-//                {
-//                    Log.e("sdf","sdfsfsf");
-//                    binding.toolBar.setVisibility(View.VISIBLE);
-//                }
-//                else
-//                {
-//
-//                }
+
+                if(view.getUrl().contains("ProductDetails"))
+                {
+                    titleDetail  = title;
+                    binding.toolBar.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+
+                }
             }
+
 
             @Override
            public void onProgressChanged(WebView view, int newProgress) {
                binding.progressBar.setProgress(newProgress);
-//               if(view.getUrl().contains("ProductDetails"))
-//               {
-
-                   binding.toolBar.setVisibility(View.VISIBLE);
-//               }
-//                else
-//               {
-//                 binding.toolBar.setVisibility(View.INVISIBLE);
-//               }
-               if(newProgress==100)
+               if(view.getUrl().contains("ProductDetails"))
                {
 
-                 //  Toast.makeText(MainActivity.this,string,Toast.LENGTH_LONG).show();
+                   binding.toolBar.setVisibility(View.VISIBLE);
+               }
+                else
+               {
+                 binding.toolBar.setVisibility(View.INVISIBLE);
+               }
+               if(newProgress==100)
+               {
                    binding.progressBar.setVisibility(View.GONE);
                    if(isFirstLauncher)
                    {
@@ -170,21 +172,15 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
             public boolean onMenuItemClick(MenuItem item) {
                 if(item.getItemId()==R.id.menu_share)
                 {
-                    GetImages();
-
-
-//                    WXWebpageObject webpageObject = new WXWebpageObject();
-//
-//                    webpageObject.webpageUrl = webView.getUrl();
-//                    WXMediaMessage msg = new WXMediaMessage(webpageObject);
-//                    msg.title = titleDetail;
-//                    msg.description = titleDetail;
-//                    Bitmap thumb = BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher);
-//                    msg.thumbData = Util.bmpToByteArray(thumb,true);
-//                    SendMessageToWX.Req req =  new SendMessageToWX.Req();
-//                    req.transaction = buildTransaction("webpage");
-//                    req.message = msg;s
-//                    req.scene = SendMessageToWX.Req.WXSceneTimeline;
+                    Log.e("tag","当前要分享的url链接为："+webView.getUrl());
+                    String id = Uri.parse(webView.getUrl()).getQueryParameter("productId");
+                    if(TextUtils.isEmpty(id))
+                    {
+                        Toast.makeText(MainActivity.this,"参数获取错误，无法分享",Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        GetImages(id);
+                    }
 
                 }
                 return false;
@@ -209,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
             if(timeTicks==0 || (System.currentTimeMillis()-timeTicks)>2000)
             {
                 Toast.makeText(this,"再按一次退出软件",Toast.LENGTH_LONG).show();
+
                 timeTicks = System.currentTimeMillis();
             }
             else
@@ -219,10 +216,6 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         }
     }
 
-
-    private String buildTransaction(final String type) {
-        return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
-    }
 
 
     @Override
@@ -240,10 +233,10 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         Toast.makeText(this,"取消分享",Toast.LENGTH_LONG).show();
     }
 
-    public  void GetImages()
+    public  void GetImages(String idStr)
     {
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("http://121.201.5.229:8008/API/VshopProcess.ashx?action=GetProductImg&productId=200").build();
+        Request request = new Request.Builder().url("http://121.201.5.229:8008/API/VshopProcess.ashx?action=GetProductImg&productId="+idStr).build();
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             @Override
@@ -265,49 +258,21 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         handler.post(new Runnable() {
             @Override
             public void run() {
-                // Toast.makeText(MainActivity.this,"分享失败,获取图片错误",Toast.LENGTH_LONG).show();
                 try {
 
                     Gson gson = new Gson();
                     ImageAdapter adapter = gson.fromJson(htmlstr, ImageAdapter.class);
-//                    String[] images = new String[]{adapter.getImageUrl1(),adapter.getImageUrl2(),adapter.getImageUrl3()
-//                            ,adapter.getImageUrl4(),adapter.getImageUrl5()};
                     ArrayList<String> imageUris = new ArrayList();
                     imageUris.add(adapter.getImageUrl1());
                     imageUris.add(adapter.getImageUrl2());
                     imageUris.add(adapter.getImageUrl3());
                     imageUris.add(adapter.getImageUrl4());
                     imageUris.add(adapter.getImageUrl5());
+
                     Intent intent = new Intent(MainActivity.this,ImageShareActivity.class);
+                    intent.putExtra("title",titleDetail);
                     intent.putStringArrayListExtra("imagelist",imageUris);
                     startActivity(intent);
-
-//                    Intent shareIntent = new Intent();
-//                    shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-//                    shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, imageUris);
-//                    shareIntent.setType("image/*");
-//                    startActivity(Intent.createChooser(shareIntent, "Share images to.."));
-//
-//
-////                    shareParams = new Wechat.ShareParams();
-////                    shareParams.setTitle("sdfsf");
-////                    shareParams.setText("234sef");
-////
-////                    shareParams.setUrl("http://121.201.5.229:8008/API/VshopProcess.ashx?action=GetProductImg&productId=200");
-////                    shareParams.setShareType(Platform.SHARE_WEBPAGE);
-////                    Platform platform = ShareSDK.getPlatform(Wechat.NAME);
-////                    platform.setPlatformActionListener(MainActivity.this);
-////                    platform.share(shareParams);
-//                    shareParams = new WechatMoments.ShareParams();
-//                    shareParams.setTitle(titleDetail);
-//                    shareParams.setText(titleDetail);
-//                    shareParams.setImageUrl(images[0]);
-//
-//                    shareParams.setUrl("http://www.baidu.com");
-//                    shareParams.setShareType(Platform.SHARE_IMAGE);
-//                    Platform platform = ShareSDK.getPlatform(WechatMoments.NAME);
-//                    platform.setPlatformActionListener(MainActivity.this);
-//                    platform.share(shareParams);
                 }catch (Exception ex)
                 {
                     Toast.makeText(MainActivity.this,"分享失败,获取图片错误",Toast.LENGTH_LONG).show();
