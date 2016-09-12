@@ -11,6 +11,5 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Toast.makeText(this,"sdf",Toast.LENGTH_LONG).show();
     }
 }

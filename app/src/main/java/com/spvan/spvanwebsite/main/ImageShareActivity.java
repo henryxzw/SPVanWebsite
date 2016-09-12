@@ -102,7 +102,7 @@ public class ImageShareActivity extends AppCompatActivity implements Toolbar.OnM
             ClipboardManager clipboard = (ClipboardManager)
                     getSystemService(this.CLIPBOARD_SERVICE);
 
-            ClipData clip = ClipData.newPlainText(null,String.format(Locale.CHINESE,"%s\r\n商品链接：%s",title,"http://www.baidu.com"));
+            ClipData clip = ClipData.newPlainText(null,title);
             clipboard.setPrimaryClip(clip);
 
             startActivity(Intent.createChooser(shareIntent, "分享图片到"));

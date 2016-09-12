@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
 
                 if(view.getUrl().contains("ProductDetails"))
                 {
-                    titleDetail  = title;
                     binding.toolBar.setVisibility(View.VISIBLE);
                 }
                 else
@@ -285,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
                     imageUris.add(adapter.getImageUrl3());
                     imageUris.add(adapter.getImageUrl4());
                     imageUris.add(adapter.getImageUrl5());
+                    titleDetail = adapter.Title;
 
                     Intent intent = new Intent(MainActivity.this,ImageShareActivity.class);
                     intent.putExtra("title",titleDetail);
@@ -361,6 +361,17 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         private String ImageUrl3;
         private String ImageUrl4;
         private String ImageUrl5;
+
+        public String getTitle() {
+            return Title;
+        }
+
+        public void setTitle(String title) {
+            Title = title;
+        }
+
+        private String Title;
+
 
         public String getImageUrl1() {
             return ImageUrl1;
