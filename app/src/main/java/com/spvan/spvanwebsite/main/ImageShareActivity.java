@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.databinding.repacked.apache.commons.codec.digest.Md5Crypt;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;

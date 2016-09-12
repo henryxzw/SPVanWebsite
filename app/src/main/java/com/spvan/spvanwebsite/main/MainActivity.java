@@ -1,14 +1,14 @@
 package com.spvan.spvanwebsite.main;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -26,20 +26,16 @@ import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.google.gson.Gson;
-import com.google.gson.internal.Excluder;
 import com.spvan.spvanwebsite.ActivityMainBinding;
 import com.spvan.spvanwebsite.R;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.wechat.friends.Wechat;
-import cn.sharesdk.wechat.moments.WechatMoments;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -71,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         webView = binding.webView;
         ShareSDK.initSDK(this);
         InitView();
+        UpdateCode();
 
     }
 
@@ -233,6 +230,26 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         Toast.makeText(this,"取消分享",Toast.LENGTH_LONG).show();
     }
 
+
+    public void UpdateCode(){
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("http://api.fir.im/apps/latest/com.spvan.spvanwebsite?api_token=6ff3c5dc2d03addc9dce664612be62ca&type=android").build();
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                showToast("更新获取错误,请检查网络");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+               ShowDialog(response.body().string());
+
+            }
+        });
+    }
+
     public  void GetImages(String idStr)
     {
         OkHttpClient client = new OkHttpClient();
@@ -280,6 +297,44 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
                 }
             }
         });
+    }
+
+    private int old_Verson = 1;
+    public void ShowDialog(final  String data)
+    {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                PackageManager manager = MainActivity.this.getPackageManager();
+                PackageInfo info;
+                try {
+                    info = manager.getPackageInfo(MainActivity.this.getPackageName(), 0);
+                    old_Verson = info.versionCode;
+                    Gson gson = new Gson();
+                    UpdateAdapter adapter = gson.fromJson(data,UpdateAdapter.class);
+                    if(!TextUtils.isEmpty(adapter.name))
+                    {
+                        String gx_rizi = adapter.changelog;
+                        String gx_ver = adapter.versionShort;
+                        String gx_version = adapter.version;
+                        String apkUrl = adapter.install_url;
+                        String vername = "_"
+                                + adapter.versionShort;
+                        // //判断版本号是不是最新的
+                        if (Double.valueOf(gx_version) > old_Verson) {
+                            Utils_GX.dialog_gengxing(gx_rizi,
+                                    gx_ver, gx_version, apkUrl,
+                                    vername, MainActivity.this,adapter.name);
+                        }
+
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
     public void  showToast(final String msg)
@@ -345,6 +400,139 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
 
         public void setImageUrl5(String ImageUrl5) {
             this.ImageUrl5 = ImageUrl5;
+        }
+    }
+
+    public static  class UpdateAdapter{
+
+        /**
+         * name : 纳伯雅
+         * version : 1
+         * changelog : 1、修复发布bug
+         * updated_at : 1473320469
+         * versionShort : 1.0
+         * build : 1
+         * installUrl : http://download.fir.im/v2/app/install/57d11126ca87a865bb00101f?download_token=a9d63ec2ef0275a27da568b6e60b5dfd
+         * install_url : http://download.fir.im/v2/app/install/57d11126ca87a865bb00101f?download_token=a9d63ec2ef0275a27da568b6e60b5dfd
+         * direct_install_url : http://download.fir.im/v2/app/install/57d11126ca87a865bb00101f?download_token=a9d63ec2ef0275a27da568b6e60b5dfd
+         * update_url : http://fir.im/kc69
+         * binary : {"fsize":2100555}
+         */
+
+        private String name;
+        private String version;
+        private String changelog;
+        private int updated_at;
+        private String versionShort;
+        private String build;
+        private String installUrl;
+        private String install_url;
+        private String direct_install_url;
+        private String update_url;
+        /**
+         * fsize : 2100555
+         */
+
+        private BinaryBean binary;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getChangelog() {
+            return changelog;
+        }
+
+        public void setChangelog(String changelog) {
+            this.changelog = changelog;
+        }
+
+        public int getUpdated_at() {
+            return updated_at;
+        }
+
+        public void setUpdated_at(int updated_at) {
+            this.updated_at = updated_at;
+        }
+
+        public String getVersionShort() {
+            return versionShort;
+        }
+
+        public void setVersionShort(String versionShort) {
+            this.versionShort = versionShort;
+        }
+
+        public String getBuild() {
+            return build;
+        }
+
+        public void setBuild(String build) {
+            this.build = build;
+        }
+
+        public String getInstallUrl() {
+            return installUrl;
+        }
+
+        public void setInstallUrl(String installUrl) {
+            this.installUrl = installUrl;
+        }
+
+        public String getInstall_url() {
+            return install_url;
+        }
+
+        public void setInstall_url(String install_url) {
+            this.install_url = install_url;
+        }
+
+        public String getDirect_install_url() {
+            return direct_install_url;
+        }
+
+        public void setDirect_install_url(String direct_install_url) {
+            this.direct_install_url = direct_install_url;
+        }
+
+        public String getUpdate_url() {
+            return update_url;
+        }
+
+        public void setUpdate_url(String update_url) {
+            this.update_url = update_url;
+        }
+
+        public BinaryBean getBinary() {
+            return binary;
+        }
+
+        public void setBinary(BinaryBean binary) {
+            this.binary = binary;
+        }
+
+        public static class BinaryBean {
+            private int fsize;
+
+            public int getFsize() {
+                return fsize;
+            }
+
+            public void setFsize(int fsize) {
+                this.fsize = fsize;
+            }
         }
     }
 }
