@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
     private String titleDetail ="";
     private Handler handler = new Handler();
 
+    private final  String baseUrl = "609bb3f9.s501.now.top";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         webView.getSettings().setLoadWithOverviewMode(true);
-        webView.loadUrl("http://121.201.5.229:8008/wapShop/");
+        webView.loadUrl("http://"+baseUrl+"/wapshop");
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
             public void onReceivedTitle(WebView view, String title) {
@@ -252,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
     public  void GetImages(String idStr)
     {
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("http://121.201.5.229:8008/API/VshopProcess.ashx?action=GetProductImg&productId="+idStr).build();
+        Request request = new Request.Builder().url("http://"+baseUrl+"/API/VshopProcess.ashx?action=GetProductImg&productId="+idStr).build();
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             @Override

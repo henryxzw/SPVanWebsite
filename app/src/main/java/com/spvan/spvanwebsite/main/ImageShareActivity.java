@@ -84,7 +84,6 @@ public class ImageShareActivity extends AppCompatActivity implements Toolbar.OnM
 
     }
 
-
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if(item.getItemId()==R.id.menu_share) {
