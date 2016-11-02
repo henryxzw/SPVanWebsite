@@ -319,7 +319,8 @@ public class MainActivity extends AppCompatActivity implements PlatformActionLis
                         String gx_rizi = adapter.changelog;
                         String gx_ver = adapter.versionShort;
                         String gx_version = adapter.version;
-                        String apkUrl = adapter.install_url;
+//                        String apkUrl = adapter.install_url;
+                        String apkUrl = "http://609bb3f9.s501.now.top/app/naboya_jiagu_sign.apk";
                         String vername = "_"
                                 + adapter.versionShort;
                         // //判断版本号是不是最新的
